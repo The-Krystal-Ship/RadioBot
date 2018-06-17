@@ -2,31 +2,46 @@
 using Discord.Audio;
 using Discord.Commands;
 
+using Inquisition.Logging;
+
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace RadioBot.Services
 {
-	public class RadioService
+    public class RadioService
     {
-		// Stores each guild's audio client
-		private readonly ConcurrentDictionary<ulong, IAudioClient> AudioClients;
+		private readonly ConcurrentDictionary<ulong, IAudioClient> _audioClients;
+        private readonly ILogger<RadioService> _logger;
+        private bool _isPlaying;
 
-		public RadioService()
+		public RadioService(ILogger<RadioService> logger)
 		{
-			AudioClients = new ConcurrentDictionary<ulong, IAudioClient>();
-		}
+			_audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
+            _logger = logger;
+
+            // Disconnect from all voice channels before exiting
+            AppDomain.CurrentDomain.ProcessExit += async delegate {
+                foreach (KeyValuePair<ulong, IAudioClient> clients in _audioClients)
+                {
+                    await clients.Value.StopAsync();
+                    clients.Value.Dispose();
+                }
+            };
+        }
 
 		public async Task JoinChannelAsync(IVoiceChannel channel, SocketCommandContext context)
 		{
             ulong guildId = context.Guild.Id;
 
-			if (!AudioClients.ContainsKey(guildId))
+			if (!_audioClients.ContainsKey(guildId))
 			{
 				IAudioClient audioClient = await channel.ConnectAsync();
-				AudioClients.TryAdd(guildId, audioClient);
+				_audioClients.TryAdd(guildId, audioClient);
+                _logger.LogInformation($"Connected to {channel.Name}");
 			}
 		}
 
@@ -34,19 +49,19 @@ namespace RadioBot.Services
 		{
             ulong guildId = context.Guild.Id;
 
-			if (AudioClients.TryGetValue(guildId, out IAudioClient audioClient))
+			if (_audioClients.TryGetValue(guildId, out IAudioClient audioClient))
 			{
 				try
 				{
 					await audioClient.StopAsync();
 					audioClient.Dispose();
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
-					Console.WriteLine(new LogMessage(LogSeverity.Info, "RadioService", "Disconnected"));
+                    _logger.LogError("Disconnected from audio client", e.Message);
 				}
 
-				AudioClients.TryRemove(context.Guild.Id, out audioClient);
+				_audioClients.TryRemove(context.Guild.Id, out audioClient);
 			}
 			else
 			{
@@ -58,36 +73,49 @@ namespace RadioBot.Services
 		{
             ulong guildId = context.Guild.Id;
 
-			if (AudioClients.TryGetValue(guildId, out IAudioClient client))
+            if (_isPlaying)
+            {
+                await context.Channel.SendMessageAsync("Queue is not implemented yet, so you're gonna have to wait");
+                return;
+            }
+
+			if (_audioClients.TryGetValue(guildId, out IAudioClient client))
 			{
+                _isPlaying = true;
+
 				// Magic happens here
-				using (Process ffmpegProcess = CreateStream(content))
+				using (Process ffmpegProcess = CreateNetworkStream(content))
 				using (AudioOutStream discordOutStream = client.CreatePCMStream(AudioApplication.Music))
 				{
 					try
 					{
+                        _logger.LogInformation("Creating audio stream");
+
 						ffmpegProcess.ErrorDataReceived += (sender, args) => {
-							Console.BackgroundColor = ConsoleColor.DarkRed;
-							Console.WriteLine(new LogMessage(LogSeverity.Error, "FFmpeg Process", args.Data));
-							Console.BackgroundColor = ConsoleColor.Black;
+                            _logger.LogInformation(args.Data);
 						};
 
 						var ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
 						await ffmpegStream.CopyToAsync(discordOutStream);
+                        _logger.LogInformation("Finished streaming");
+                        _isPlaying = false;
 					}
-					catch (Exception)
+					catch (Exception e)
 					{
-						Console.WriteLine(new LogMessage(LogSeverity.Error, "RadioService", "Closed audio stream"));
+                        _logger.LogError("Closed audio steam", e.Message);
 					}
 					finally
 					{
 						await discordOutStream.FlushAsync();
+                        _logger.LogInformation("Flushed stream");
+                        _isPlaying = false;
 					}
 				}
 			}
 			else
 			{
-				Console.WriteLine(new LogMessage(LogSeverity.Error, "RadioService", "Failed to retrieve AudioClient"));
+                _logger.LogError("Failed to retrieve audio client");
+                _isPlaying = false;
 			}
 		}
 
@@ -104,5 +132,20 @@ namespace RadioBot.Services
 				}
 			);
 		}
-	}
+
+        private Process CreateNetworkStream(string path)
+        {
+            string command = $"/C youtube-dl.exe -q -i --default-search ytsearch -o - \"{path}\" | ffmpeg.exe -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1";
+
+            return Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = command,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = false
+                }
+            );
+        }
+    }
 }

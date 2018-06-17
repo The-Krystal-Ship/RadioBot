@@ -1,10 +1,11 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
+
+using Inquisition.Logging;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using RadioBot.Services;
+using RadioBot.Extensions;
 
 using System;
 using System.Reflection;
@@ -12,53 +13,61 @@ using System.Threading.Tasks;
 
 namespace RadioBot.Handlers
 {
-	public class CommandHandler
+    public class CommandHandler
     {
-		private DiscordSocketClient Client;
-		private CommandService CommandService;
-		private readonly IServiceProvider ServiceCollection;
+		private readonly DiscordSocketClient _client;
+		private readonly CommandService _commandService;
+		private readonly IServiceProvider _serviceCollection;
+        private ILogger<CommandHandler> _logger;
 
 		public CommandHandler(DiscordSocketClient client)
 		{
-			Client = client;
+			_client = client;
 
-			CommandService = new CommandService(new CommandServiceConfig()
+            _logger = new Logger<CommandHandler>();
+
+			_commandService = new CommandService(new CommandServiceConfig()
 				{
 					CaseSensitiveCommands = false,
 					DefaultRunMode = RunMode.Async
 				}
 			);
 
-			CommandService.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
+			_commandService.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
 
-			ServiceCollection = new ServiceCollection()
-				.AddSingleton(new RadioService())
+			_serviceCollection = new ServiceCollection()
+                .AddSingleton(_client)
+                .AddSingleton(_commandService)
+                .AddHandlers()
+                .AddServices()
+                .AddLogger()
 				.BuildServiceProvider();
 
-			Console.Title = "RadioBot";
+            // Start handlers/services
+            _serviceCollection.GetService<EventHandler>();
 
-			Client.MessageReceived += HandleCommands;
+			_client.MessageReceived += HandleCommands;
 		}
 
-		private async Task HandleCommands(SocketMessage arg)
+		private async Task HandleCommands(SocketMessage socketMessage)
 		{
-            SocketUserMessage message = arg as SocketUserMessage;
+            SocketUserMessage message = socketMessage as SocketUserMessage;
 
 			if (message is null || message.Author.IsBot)
 				return;
 
 			int argPos = 0;
-			bool mention = message.HasMentionPrefix(Client.CurrentUser, ref argPos);
+			bool mention = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
 
-			if (mention)
+            if (!mention)
+                return;
+
+			SocketCommandContext context = new SocketCommandContext(_client, message);
+			IResult result = await _commandService.ExecuteAsync(context, argPos, _serviceCollection);
+
+			if (!result.IsSuccess)
 			{
-				SocketCommandContext context = new SocketCommandContext(Client, message);
-				IResult result = await CommandService.ExecuteAsync(context, argPos, ServiceCollection);
-
-				if (!result.IsSuccess)
-				{
-					Console.WriteLine(new LogMessage(LogSeverity.Error, "Command", result.ErrorReason));
-				}
+                _logger.LogError(result.ErrorReason);
 			}
 		}
 	}

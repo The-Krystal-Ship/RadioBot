@@ -4,36 +4,38 @@ using Discord.WebSocket;
 using RadioBot.Handlers;
 using RadioBot.Properties;
 
+using System;
 using System.Threading.Tasks;
 
 namespace RadioBot
 {
-	public class Program
+    public class Program
     {
-		private static string Token;
-		private static DiscordSocketClient Client;
-		private static CommandHandler CommandHanlder;
-		private static EventHandler EventHandler;
+		private static string _token;
+		private static DiscordSocketClient _client;
+		private static CommandHandler _commandHandler;
 
-		static async Task Main(string[] args)
+		public static async Task Main(string[] args)
 		{
-			Token = Resources.Token;
+            Console.Title = "RadioBot";
 
-			Client = new DiscordSocketClient(new DiscordSocketConfig()
+            _token = BotInfo.Token;
+
+			_client = new DiscordSocketClient(new DiscordSocketConfig()
 				{
+                    LogLevel = LogSeverity.Info,
 					DefaultRetryMode = RetryMode.AlwaysRetry,
 					ConnectionTimeout = 5000
 				}
 			);
 
-			CommandHanlder = new CommandHandler(Client);
-			EventHandler = new EventHandler(Client);
+			_commandHandler = new CommandHandler(_client);
 
-			await Client.LoginAsync(TokenType.Bot, Token);
-			await Client.StartAsync();
-			await Client.SetGameAsync("music 🎶");
+            await _client.LoginAsync(TokenType.Bot, _token);
+            await _client.StartAsync();
+            await _client.SetGameAsync("music 🎶");
 
-			await Task.Delay(-1);
-		}
+            await Task.Delay(-1);
+        }
     }
 }

@@ -1,20 +1,26 @@
 ﻿using Discord;
 using Discord.Commands;
 
+using Inquisition.Logging;
+
 using RadioBot.Services;
 
 using System.Threading.Tasks;
 
 namespace RadioBot.Modules
 {
-	public class RadioModule : ModuleBase<SocketCommandContext>
+    public class RadioModule : ModuleBase<SocketCommandContext>
     {
-		private RadioService RadioService;
+		private readonly RadioService _radioService;
+        private readonly ILogger<RadioModule> _logger;
 
 		// Dependency injection of RadioService
-		public RadioModule(RadioService radioService)
+		public RadioModule(
+            RadioService radioService,
+            ILogger<RadioModule> logger)
 		{
-			RadioService = radioService;
+			_radioService = radioService;
+            _logger = logger;
 		}
 
 		[Command("join")]
@@ -30,7 +36,7 @@ namespace RadioBot.Modules
 			}
 
 			// Sent request to service
-			await RadioService.JoinChannelAsync(userVoiceChannel, Context);
+			await _radioService.JoinChannelAsync(userVoiceChannel, Context);
 		}
 
 		[Command("leave")]
@@ -38,7 +44,7 @@ namespace RadioBot.Modules
 		public async Task LeaveAsync()
 		{
 			// Service handles checks on this one
-			await RadioService.LeaveChannel(Context);
+			await _radioService.LeaveChannel(Context);
 		}
 
 		[Command("play")]
@@ -60,13 +66,10 @@ namespace RadioBot.Modules
 			}
 
             // Service will only join if not already in the voice channel
-			await RadioService.JoinChannelAsync(userVoiceChannel, Context);
-
-			// Change status to "Playing {content}" whatever the user requested
-			await Context.Client.SetGameAsync(content);
+			await _radioService.JoinChannelAsync(userVoiceChannel, Context);
 
 			// Send play request to service
-			await RadioService.PlayAsync(content, Context);
+			await _radioService.PlayAsync(content, Context);
 		}
     }
 }

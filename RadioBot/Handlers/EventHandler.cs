@@ -1,26 +1,32 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-using System;
+using Inquisition.Logging;
+
 using System.Threading.Tasks;
 
 namespace RadioBot.Handlers
 {
-	public class EventHandler
+    public class EventHandler
     {
-		private DiscordSocketClient Client;
+		private DiscordSocketClient _client;
+        private readonly ILogger<EventHandler> _logger;
 
-		public EventHandler(DiscordSocketClient client)
+		public EventHandler(
+            DiscordSocketClient client,
+            ILogger<EventHandler> logger)
 		{
-			Client = client;
-			Client.Log += Client_Log;
+			_client = client;
+            _logger = logger;
+
+			_client.Log += Client_Log;
 		}
 
 		private Task Client_Log(LogMessage logMessage)
 		{
 			if (!logMessage.Message.Contains("OpCode"))
 			{
-				Console.WriteLine(logMessage);
+                _logger.LogInformation(logMessage.Source, logMessage.Message);
 			}
 
 			return Task.CompletedTask;
