@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 
 using Inquisition.Logging;
+using Inquisition.Logging.Extensions;
 
 using Microsoft.Extensions.DependencyInjection;
 

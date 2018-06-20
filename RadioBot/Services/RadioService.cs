@@ -55,6 +55,7 @@ namespace RadioBot.Services
 				{
 					await audioClient.StopAsync();
 					audioClient.Dispose();
+                    _isPlaying = false;
 				}
 				catch (Exception e)
 				{

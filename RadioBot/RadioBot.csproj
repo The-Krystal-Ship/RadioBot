@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="1.0.2" />
-    <PackageReference Include="Inquisition.Logging" Version="1.0.0" />
+    <PackageReference Include="Inquisition.Logging" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
