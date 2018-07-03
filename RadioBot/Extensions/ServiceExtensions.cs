@@ -1,7 +1,6 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using RadioBot.Handlers;
+using RadioBot.Managers;
 using RadioBot.Services;
 
 namespace RadioBot.Extensions
@@ -10,7 +9,7 @@ namespace RadioBot.Extensions
     {
         public static IServiceCollection AddHandlers(this IServiceCollection services)
         {
-            services.AddSingleton<EventHandler>();
+            services.AddSingleton<EventManager>();
 
             return services;
         }

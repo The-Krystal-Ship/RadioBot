@@ -7,6 +7,7 @@ using Inquisition.Logging.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 using RadioBot.Extensions;
+using RadioBot.Managers;
 
 using System;
 using System.Reflection;
@@ -21,7 +22,7 @@ namespace RadioBot.Handlers
 		private readonly IServiceProvider _serviceCollection;
         private ILogger<CommandHandler> _logger;
 
-		public CommandHandler(DiscordSocketClient client)
+		public CommandHandler(ref DiscordSocketClient client)
 		{
 			_client = client;
 
@@ -45,7 +46,7 @@ namespace RadioBot.Handlers
 				.BuildServiceProvider();
 
             // Start handlers/services
-            _serviceCollection.GetService<EventHandler>();
+            _serviceCollection.GetService<EventManager>();
 
 			_client.MessageReceived += HandleCommands;
 		}

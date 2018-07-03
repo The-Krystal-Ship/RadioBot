@@ -5,16 +5,16 @@ using Inquisition.Logging;
 
 using System.Threading.Tasks;
 
-namespace RadioBot.Handlers
+namespace RadioBot.Managers
 {
-    public class EventHandler
+    public class EventManager
     {
 		private DiscordSocketClient _client;
-        private readonly ILogger<EventHandler> _logger;
+        private readonly ILogger<EventManager> _logger;
 
-		public EventHandler(
+		public EventManager(
             DiscordSocketClient client,
-            ILogger<EventHandler> logger)
+            ILogger<EventManager> logger)
 		{
 			_client = client;
             _logger = logger;
@@ -26,7 +26,7 @@ namespace RadioBot.Handlers
 		{
 			if (!logMessage.Message.Contains("OpCode"))
 			{
-                _logger.LogInformation(logMessage.Source, logMessage.Message);
+                _logger.LogInformation(GetType().FullName + $" ({logMessage.Source})", logMessage.Message);
 			}
 
 			return Task.CompletedTask;

@@ -23,13 +23,13 @@ namespace RadioBot
 
 			_client = new DiscordSocketClient(new DiscordSocketConfig()
 				{
-                    LogLevel = LogSeverity.Info,
+                    LogLevel = LogSeverity.Debug,
 					DefaultRetryMode = RetryMode.AlwaysRetry,
 					ConnectionTimeout = 5000
 				}
 			);
 
-			_commandHandler = new CommandHandler(_client);
+			_commandHandler = new CommandHandler(ref _client);
 
             await _client.LoginAsync(TokenType.Bot, _token);
             await _client.StartAsync();
