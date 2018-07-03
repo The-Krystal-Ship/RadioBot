@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 
 using RadioBot.Handlers;
-using RadioBot.Properties;
+using RadioBot.Managers;
 
 using System;
 using System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace RadioBot
 		{
             Console.Title = "RadioBot";
 
-            _token = BotInfo.Token;
+            _token = Configuration.Get["Token"];
 
 			_client = new DiscordSocketClient(new DiscordSocketConfig()
 				{

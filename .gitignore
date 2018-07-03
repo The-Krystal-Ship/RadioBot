@@ -259,10 +259,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/RadioBot/Properties
+/RadioBot/Properties/settings.json
 /RadioBot/opus.dll
 /RadioBot/libsodium.dll
-/RadioBot/Libraries
-/RadioBot/Programs
 /RadioBot/ffmpeg.exe
 /RadioBot/youtube-dl.exe
