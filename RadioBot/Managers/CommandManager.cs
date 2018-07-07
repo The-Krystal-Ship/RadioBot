@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 using Inquisition.Logging;
@@ -7,29 +8,27 @@ using Inquisition.Logging.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 using RadioBot.Extensions;
-using RadioBot.Managers;
 
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace RadioBot.Handlers
+namespace RadioBot.Managers
 {
-    public class CommandHandler
+    public class CommandManager
     {
 		private readonly DiscordSocketClient _client;
 		private readonly CommandService _commandService;
 		private readonly IServiceProvider _serviceCollection;
-        private ILogger<CommandHandler> _logger;
+        private readonly ILogger<CommandManager> _logger;
 
-		public CommandHandler(ref DiscordSocketClient client)
+		public CommandManager(ref DiscordSocketClient client)
 		{
 			_client = client;
 
-            _logger = new Logger<CommandHandler>();
-
 			_commandService = new CommandService(new CommandServiceConfig()
 				{
+                    LogLevel = LogSeverity.Info,
 					CaseSensitiveCommands = false,
 					DefaultRunMode = RunMode.Async
 				}
@@ -47,8 +46,9 @@ namespace RadioBot.Handlers
 
             // Start handlers/services
             _serviceCollection.GetService<EventManager>();
+            _logger = _serviceCollection.GetService<ILogger<CommandManager>>();
 
-			_client.MessageReceived += HandleCommands;
+            _client.MessageReceived += HandleCommands;
 		}
 
 		private async Task HandleCommands(SocketMessage socketMessage)

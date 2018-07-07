@@ -9,12 +9,10 @@ namespace RadioBot.Managers
 {
     public class EventManager
     {
-		private DiscordSocketClient _client;
+		private readonly DiscordSocketClient _client;
         private readonly ILogger<EventManager> _logger;
 
-		public EventManager(
-            DiscordSocketClient client,
-            ILogger<EventManager> logger)
+		public EventManager(DiscordSocketClient client, ILogger<EventManager> logger)
 		{
 			_client = client;
             _logger = logger;

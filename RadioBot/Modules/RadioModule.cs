@@ -11,13 +11,10 @@ namespace RadioBot.Modules
 {
     public class RadioModule : ModuleBase<SocketCommandContext>
     {
-		private readonly RadioService _radioService;
+		private readonly IRadioService _radioService;
         private readonly ILogger<RadioModule> _logger;
-
-		// Dependency injection of RadioService
-		public RadioModule(
-            RadioService radioService,
-            ILogger<RadioModule> logger)
+        
+		public RadioModule(IRadioService radioService, ILogger<RadioModule> logger)
 		{
 			_radioService = radioService;
             _logger = logger;

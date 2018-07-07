@@ -16,7 +16,7 @@ namespace RadioBot.Extensions
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.AddSingleton<RadioService>();
+            services.AddSingleton<IRadioService, RadioService>();
 
             return services;
         }

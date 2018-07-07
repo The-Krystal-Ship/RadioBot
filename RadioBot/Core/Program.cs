@@ -1,8 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-using RadioBot.Handlers;
 using RadioBot.Managers;
+using RadioBot.Properties;
 
 using System;
 using System.Threading.Tasks;
@@ -13,13 +13,13 @@ namespace RadioBot
     {
 		private static string _token;
 		private static DiscordSocketClient _client;
-		private static CommandHandler _commandHandler;
+		private static CommandManager _commandHandler;
 
 		public static async Task Main(string[] args)
 		{
             Console.Title = "RadioBot";
 
-            _token = Configuration.Get["Token"];
+            _token = Configuration.Get("Bot", "Token");
 
 			_client = new DiscordSocketClient(new DiscordSocketConfig()
 				{
@@ -29,7 +29,7 @@ namespace RadioBot
 				}
 			);
 
-			_commandHandler = new CommandHandler(ref _client);
+			_commandHandler = new CommandManager(ref _client);
 
             await _client.LoginAsync(TokenType.Bot, _token);
             await _client.StartAsync();
