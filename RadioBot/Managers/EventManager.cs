@@ -1,11 +1,10 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 
 using Inquisition.Logging;
 
 using System.Threading.Tasks;
 
-namespace RadioBot.Managers
+namespace TheKrystalShip.RadioBot.Managers
 {
     public class EventManager
     {
@@ -17,17 +16,15 @@ namespace RadioBot.Managers
 			_client = client;
             _logger = logger;
 
-			_client.Log += Client_Log;
-		}
+            _client.Log += (message) =>
+            {
+                if (!message.Message.Contains("OpCode"))
+                {
+                    _logger.LogInformation(GetType() + $" ({message.Source})", message.Message);
+                }
 
-		private Task Client_Log(LogMessage logMessage)
-		{
-			if (!logMessage.Message.Contains("OpCode"))
-			{
-                _logger.LogInformation(GetType().FullName + $" ({logMessage.Source})", logMessage.Message);
-			}
-
-			return Task.CompletedTask;
+                return Task.CompletedTask;
+            };
 		}
 	}
 }

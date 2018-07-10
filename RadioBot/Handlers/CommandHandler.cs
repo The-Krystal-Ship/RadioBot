@@ -7,34 +7,41 @@ using Inquisition.Logging.Extensions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using RadioBot.Extensions;
-
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace RadioBot.Managers
+using TheKrystalShip.RadioBot.Extensions;
+using TheKrystalShip.RadioBot.Managers;
+
+namespace TheKrystalShip.RadioBot.Handlers
 {
-    public class CommandManager
+    public class CommandHandler
     {
 		private readonly DiscordSocketClient _client;
 		private readonly CommandService _commandService;
 		private readonly IServiceProvider _serviceCollection;
-        private readonly ILogger<CommandManager> _logger;
+        private readonly ILogger<CommandHandler> _logger;
 
-		public CommandManager(ref DiscordSocketClient client)
+		public CommandHandler(ref DiscordSocketClient client)
 		{
 			_client = client;
 
 			_commandService = new CommandService(new CommandServiceConfig()
 				{
-                    LogLevel = LogSeverity.Info,
+                    LogLevel = LogSeverity.Debug,
 					CaseSensitiveCommands = false,
 					DefaultRunMode = RunMode.Async
 				}
 			);
 
 			_commandService.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
+            
+            _commandService.Log += (message) => 
+            {
+                _logger.LogInformation(GetType().FullName + $" ({message.Source})", message.Message);
+                return Task.CompletedTask;
+            };
 
 			_serviceCollection = new ServiceCollection()
                 .AddSingleton(_client)
@@ -46,12 +53,12 @@ namespace RadioBot.Managers
 
             // Start handlers/services
             _serviceCollection.GetService<EventManager>();
-            _logger = _serviceCollection.GetService<ILogger<CommandManager>>();
+            _logger = _serviceCollection.GetService<ILogger<CommandHandler>>();
 
             _client.MessageReceived += HandleCommands;
 		}
 
-		private async Task HandleCommands(SocketMessage socketMessage)
+        private async Task HandleCommands(SocketMessage socketMessage)
 		{
             SocketUserMessage message = socketMessage as SocketUserMessage;
 

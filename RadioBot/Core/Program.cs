@@ -1,19 +1,19 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-using RadioBot.Managers;
-using RadioBot.Properties;
-
 using System;
 using System.Threading.Tasks;
 
-namespace RadioBot
+using TheKrystalShip.RadioBot.Handlers;
+using TheKrystalShip.RadioBot.Properties;
+
+namespace TheKrystalShip.RadioBot
 {
     public class Program
     {
 		private static string _token;
 		private static DiscordSocketClient _client;
-		private static CommandManager _commandHandler;
+		private static CommandHandler _commandHandler;
 
 		public static async Task Main(string[] args)
 		{
@@ -29,7 +29,7 @@ namespace RadioBot
 				}
 			);
 
-			_commandHandler = new CommandManager(ref _client);
+			_commandHandler = new CommandHandler(ref _client);
 
             await _client.LoginAsync(TokenType.Bot, _token);
             await _client.StartAsync();

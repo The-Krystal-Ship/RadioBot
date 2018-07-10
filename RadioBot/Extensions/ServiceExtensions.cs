@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-using RadioBot.Managers;
-using RadioBot.Services;
+using TheKrystalShip.RadioBot.Managers;
+using TheKrystalShip.RadioBot.Services;
 
-namespace RadioBot.Extensions
+namespace TheKrystalShip.RadioBot.Extensions
 {
     public static class ServiceExtensions
     {

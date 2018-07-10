@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace RadioBot.Properties
+namespace TheKrystalShip.RadioBot.Properties
 {
     public static class Configuration
     {

@@ -4,8 +4,6 @@ using Discord.Commands;
 
 using Inquisition.Logging;
 
-using RadioBot.Properties;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,18 +11,29 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace RadioBot.Services
+using TheKrystalShip.RadioBot.Properties;
+
+namespace TheKrystalShip.RadioBot.Services
 {
     public class RadioService : IRadioService
     {
 		private readonly ConcurrentDictionary<ulong, IAudioClient> _audioClients;
-        private Process _process;
+        private ConcurrentQueue<string> _queue;
+        private readonly string _youtubedlPath;
+        private readonly string _ffmpegPath;
+
+        private Process _playbackProcess;
+
         private readonly ILogger<RadioService> _logger;
         private bool _isPlaying;
 
 		public RadioService(ILogger<RadioService> logger)
 		{
 			_audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
+            _queue = new ConcurrentQueue<string>();
+            _youtubedlPath = Configuration.Get("Tools", "youtube-dl");
+            _ffmpegPath = Configuration.Get("Tools", "ffmpeg");
+
             _logger = logger;
             
             AppDomain.CurrentDomain.ProcessExit += async delegate {
@@ -48,7 +57,7 @@ namespace RadioBot.Services
 			}
 		}
 
-		public async Task LeaveChannel(SocketCommandContext context)
+		public async Task LeaveChannelAsync(SocketCommandContext context)
 		{
 			if (!_audioClients.TryGetValue(context.Guild.Id, out IAudioClient audioClient))
             {
@@ -64,9 +73,9 @@ namespace RadioBot.Services
 
                 _audioClients.TryRemove(context.Guild.Id, out audioClient);
 
-                _process?.CloseMainWindow();
-                _process?.Close();
-                _process?.Dispose();
+                _playbackProcess?.CloseMainWindow();
+                _playbackProcess?.Close();
+                _playbackProcess?.Dispose();
             }
 			catch (Exception e)
 			{
@@ -82,75 +91,68 @@ namespace RadioBot.Services
                 return;
             }
 
-			if (!_audioClients.TryGetValue(context.Guild.Id, out IAudioClient client))
+            if (!_audioClients.TryGetValue(context.Guild.Id, out IAudioClient client))
 			{
                 _logger.LogError("Failed to retrieve audio client");
                 _isPlaying = false;
                 return;
 			}
-            
-            using (Process ffmpegProcess = CreateNetworkStream(content))
-            using (AudioOutStream discordOutStream = client.CreatePCMStream(AudioApplication.Music))
+
+            _queue.Enqueue(content);
+
+            while (_queue.TryDequeue(out string query))
             {
-                _isPlaying = true;
-
-                try
+                using (Process ffmpegProcess = CreateNetworkStream(query))
+                using (AudioOutStream discordOutStream = client.CreatePCMStream(AudioApplication.Music))
                 {
-                    _logger.LogInformation("Creating audio stream");
+                    _isPlaying = true;
 
-                    Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
-                    await ffmpegStream.CopyToAsync(discordOutStream);
+                    try
+                    {
+                        _logger.LogInformation("Creating audio stream");
 
-                    _logger.LogInformation("Finished streaming");
-                    await context.Channel.SendMessageAsync("Finished streaming");
-                }
-                catch (Exception)
-                {
-                    _logger.LogError("Closed audio steam");
-                }
-                finally
-                {
-                    await discordOutStream.FlushAsync();
-                    _logger.LogInformation("Flushed stream");
-                    _isPlaying = false;
-                }
+                        Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
+                        await ffmpegStream.CopyToAsync(discordOutStream);
+
+                        _logger.LogInformation($"Finished playing: {content}");
+                    }
+                    catch (Exception)
+                    {
+                        _logger.LogError("Closed audio steam");
+                    }
+                    finally
+                    {
+                        await discordOutStream.FlushAsync();
+                        _logger.LogInformation("Flushed stream");
+                        _isPlaying = false;
+                        _playbackProcess?.CloseMainWindow();
+                        _playbackProcess?.Close();
+                        _playbackProcess?.Dispose();
+                    }
+                } 
             }
-        }
 
-        private Process CreateStream(string query)
-        {
-            string filename = "ffmpeg.exe";
-
-            string command = $"-hide_banner -i \"{query}\" -ac 2 -f s16le -ar 48000 pipe:1";
-
-            return Process.Start(new ProcessStartInfo()
-                {
-                    FileName = filename,
-                    Arguments = command,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                }
-            );
+            await context.Channel.SendMessageAsync("Finished queue");
         }
 
         private Process CreateNetworkStream(string query)
         {
             string filename = "cmd.exe";
 
-            string download = $"/C youtube-dl.exe -q -i --default-search ytsearch -o - \"{query}\"";
-            string encode = $"ffmpeg.exe -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1";
-            string command = $"{download} | {encode}";
+            string download = $"/C {_youtubedlPath} -q -i --default-search ytsearch -o - \"{query}\"";
+            string encode = $"{_ffmpegPath} -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1";
+            string arguments = $"{download} | {encode}";
 
-            return _process = Process.Start(new ProcessStartInfo
+            return _playbackProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = filename,
-                    Arguments = command,
+                    Arguments = arguments,
                     WorkingDirectory = Directory.GetCurrentDirectory(),
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    UserName = Machine.User(),
+                    UserName = Machine.User,
                     PasswordInClearText = Configuration.Get("Local", "Password"),
-                    Domain = Machine.Domain(),
+                    Domain = Machine.Domain,
                     CreateNoWindow = false
                 }
             );

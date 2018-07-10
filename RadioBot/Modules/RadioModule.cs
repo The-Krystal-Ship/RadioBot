@@ -3,11 +3,11 @@ using Discord.Commands;
 
 using Inquisition.Logging;
 
-using RadioBot.Services;
-
 using System.Threading.Tasks;
 
-namespace RadioBot.Modules
+using TheKrystalShip.RadioBot.Services;
+
+namespace TheKrystalShip.RadioBot.Modules
 {
     public class RadioModule : ModuleBase<SocketCommandContext>
     {
@@ -41,7 +41,7 @@ namespace RadioBot.Modules
 		public async Task LeaveAsync()
 		{
 			// Service handles checks on this one
-			await _radioService.LeaveChannel(Context);
+			await _radioService.LeaveChannelAsync(Context);
 		}
 
 		[Command("play")]
