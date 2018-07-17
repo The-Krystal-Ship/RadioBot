@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 
-using Inquisition.Logging;
-
 using System.Threading.Tasks;
 
+using TheKrystalShip.Logging;
 using TheKrystalShip.RadioBot.Services;
 
 namespace TheKrystalShip.RadioBot.Modules

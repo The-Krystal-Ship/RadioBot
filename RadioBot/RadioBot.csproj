@@ -19,10 +19,10 @@
   <ItemGroup>
     <PackageReference Include="Discord.Addons.Interactive" Version="1.0.1" />
     <PackageReference Include="Discord.Net" Version="1.0.2" />
-    <PackageReference Include="Inquisition.Logging" Version="1.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
+    <PackageReference Include="TheKrystalShip.Logging" Version="1.0.6.1" />
   </ItemGroup>
 
   <ItemGroup>

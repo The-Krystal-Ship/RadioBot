@@ -1,8 +1,8 @@
 ﻿using Discord.WebSocket;
 
-using Inquisition.Logging;
-
 using System.Threading.Tasks;
+
+using TheKrystalShip.Logging;
 
 namespace TheKrystalShip.RadioBot.Managers
 {

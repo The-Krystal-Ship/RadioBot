@@ -2,7 +2,7 @@
 using Discord.Audio;
 using Discord.Commands;
 
-using Inquisition.Logging;
+using Microsoft.Extensions.Configuration;
 
 using System;
 using System.Collections.Concurrent;
@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
+using TheKrystalShip.Logging;
 using TheKrystalShip.RadioBot.Properties;
 
 namespace TheKrystalShip.RadioBot.Services
@@ -19,21 +20,21 @@ namespace TheKrystalShip.RadioBot.Services
     {
 		private readonly ConcurrentDictionary<ulong, IAudioClient> _audioClients;
         private ConcurrentQueue<string> _queue;
-        private readonly string _youtubedlPath;
-        private readonly string _ffmpegPath;
+        private static readonly string _youtubedlPath = Path.Combine("Programs", "youtube-dl.exe");
+        private static readonly string _ffmpegPath = Path.Combine("Programs", "ffmpeg.exe");
 
         private Process _playbackProcess;
 
+        private readonly IConfiguration _config;
         private readonly ILogger<RadioService> _logger;
         private bool _isPlaying;
 
-		public RadioService(ILogger<RadioService> logger)
+		public RadioService(IConfiguration config, ILogger<RadioService> logger)
 		{
 			_audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
             _queue = new ConcurrentQueue<string>();
-            _youtubedlPath = Configuration.Get("Tools", "youtube-dl");
-            _ffmpegPath = Configuration.Get("Tools", "ffmpeg");
 
+            _config = config;
             _logger = logger;
             
             AppDomain.CurrentDomain.ProcessExit += async delegate {
@@ -77,7 +78,7 @@ namespace TheKrystalShip.RadioBot.Services
                 _playbackProcess?.Close();
                 _playbackProcess?.Dispose();
             }
-			catch (Exception e)
+			catch (Exception)
 			{
                 _logger.LogError("Disconnected from audio client");
 			}
@@ -151,7 +152,7 @@ namespace TheKrystalShip.RadioBot.Services
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     UserName = Machine.User,
-                    PasswordInClearText = Configuration.Get("Local", "Password"),
+                    PasswordInClearText = _config["Local:Password"],
                     Domain = Machine.Domain,
                     CreateNoWindow = false
                 }

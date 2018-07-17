@@ -2,15 +2,15 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
-using Inquisition.Logging;
-using Inquisition.Logging.Extensions;
-
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using TheKrystalShip.Logging;
+using TheKrystalShip.Logging.Extensions;
 using TheKrystalShip.RadioBot.Extensions;
 using TheKrystalShip.RadioBot.Managers;
 
@@ -20,12 +20,14 @@ namespace TheKrystalShip.RadioBot.Handlers
     {
 		private readonly DiscordSocketClient _client;
 		private readonly CommandService _commandService;
+        private readonly IConfiguration _config;
 		private readonly IServiceProvider _serviceCollection;
         private readonly ILogger<CommandHandler> _logger;
 
-		public CommandHandler(ref DiscordSocketClient client)
+		public CommandHandler(ref DiscordSocketClient client, ref IConfiguration config)
 		{
 			_client = client;
+            _config = config;
 
 			_commandService = new CommandService(new CommandServiceConfig()
 				{
@@ -46,6 +48,7 @@ namespace TheKrystalShip.RadioBot.Handlers
 			_serviceCollection = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(_commandService)
+                .AddSingleton(_config)
                 .AddHandlers()
                 .AddServices()
                 .AddLogger()
