@@ -18,69 +18,71 @@ namespace TheKrystalShip.RadioBot.Handlers
 {
     public class CommandHandler
     {
-		private readonly DiscordSocketClient _client;
-		private readonly CommandService _commandService;
+        private readonly DiscordSocketClient _client;
+        private readonly CommandService _commandService;
         private readonly IConfiguration _config;
-		private readonly IServiceProvider _serviceCollection;
+        private readonly IServiceProvider _serviceCollection;
         private readonly ILogger<CommandHandler> _logger;
 
-		public CommandHandler(ref DiscordSocketClient client, ref IConfiguration config)
-		{
-			_client = client;
+        public CommandHandler(ref DiscordSocketClient client, ref IConfiguration config)
+        {
+            _client = client;
             _config = config;
 
-			_commandService = new CommandService(new CommandServiceConfig()
-				{
+            _commandService = new CommandService(new CommandServiceConfig()
+                {
                     LogLevel = LogSeverity.Debug,
-					CaseSensitiveCommands = false,
-					DefaultRunMode = RunMode.Async
-				}
-			);
+                    CaseSensitiveCommands = false,
+                    DefaultRunMode = RunMode.Async
+                }
+            );
 
-			_commandService.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
-            
-            _commandService.Log += (message) => 
-            {
-                _logger.LogInformation(GetType().FullName + $" ({message.Source})", message.Message);
-                return Task.CompletedTask;
-            };
+            _commandService.AddModulesAsync(Assembly.GetEntryAssembly()).Wait();
 
-			_serviceCollection = new ServiceCollection()
+            _commandService.Log += CommandServiceLog;
+
+            _serviceCollection = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(_commandService)
                 .AddSingleton(_config)
                 .AddHandlers()
                 .AddServices()
                 .AddLogger()
-				.BuildServiceProvider();
+                .BuildServiceProvider();
 
             // Start handlers/services
             _serviceCollection.GetService<EventManager>();
             _logger = _serviceCollection.GetService<ILogger<CommandHandler>>();
 
             _client.MessageReceived += HandleCommands;
-		}
+        }
+
+        public Task CommandServiceLog(LogMessage message)
+        {
+            _logger.LogInformation(GetType().FullName + $" ({message.Source})", message.Message);
+            return Task.CompletedTask;
+        }
 
         private async Task HandleCommands(SocketMessage socketMessage)
-		{
+        {
             SocketUserMessage message = socketMessage as SocketUserMessage;
 
-			if (message is null || message.Author.IsBot)
-				return;
+            if (message is null || message.Author.IsBot)
+                return;
 
-			int argPos = 0;
-			bool mention = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
+            int argPos = 0;
+            bool mention = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
 
             if (!mention)
                 return;
 
-			SocketCommandContext context = new SocketCommandContext(_client, message);
-			IResult result = await _commandService.ExecuteAsync(context, argPos, _serviceCollection);
+            SocketCommandContext context = new SocketCommandContext(_client, message);
+            IResult result = await _commandService.ExecuteAsync(context, argPos, _serviceCollection);
 
-			if (!result.IsSuccess)
-			{
+            if (!result.IsSuccess)
+            {
                 _logger.LogError(result.ErrorReason);
-			}
-		}
-	}
+            }
+        }
+    }
 }

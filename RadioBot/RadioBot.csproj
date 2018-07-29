@@ -6,6 +6,7 @@
     <ApplicationIcon />
     <StartupObject />
     <RootNamespace>TheKrystalShip.RadioBot</RootNamespace>
+    <AssemblyName>TheKrystalShip.RadioBot</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

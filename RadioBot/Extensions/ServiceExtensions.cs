@@ -17,6 +17,9 @@ namespace TheKrystalShip.RadioBot.Extensions
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddSingleton<IRadioService, RadioService>();
+            services.AddSingleton<IStreamService, StreamService>();
+            services.AddSingleton<IDownloadService, DownloadService>();
+            services.AddSingleton<IEncodeService, EncodeService>();
 
             return services;
         }
