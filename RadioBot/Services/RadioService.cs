@@ -22,7 +22,6 @@ namespace TheKrystalShip.RadioBot.Services
         private Process _playbackProcess;
 
         private readonly IStreamService _streamService;
-        private readonly IConfiguration _config;
         private readonly ILogger<RadioService> _logger;
         private bool _isPlaying;
 
@@ -31,7 +30,6 @@ namespace TheKrystalShip.RadioBot.Services
             _audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
 
             _streamService = streamService;
-            _config = config;
             _logger = logger;
 
             AppDomain.CurrentDomain.ProcessExit += async delegate

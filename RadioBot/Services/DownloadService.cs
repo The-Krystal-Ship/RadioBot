@@ -1,26 +1,23 @@
-using Microsoft.Extensions.Configuration;
-
+using TheKrystalShip.Configuration;
 using TheKrystalShip.Logging;
 
 namespace TheKrystalShip.RadioBot.Services
 {
     public class DownloadService : IDownloadService
     {
-        private readonly IConfiguration _config;
         private readonly ILogger<DownloadService> _logger;
         private readonly string _program;
         private readonly string _launchArgs;
         private string _inputArgs;
         private readonly string _outputArgs;
 
-        public DownloadService(IConfiguration config, ILogger<DownloadService> logger)
+        public DownloadService(ILogger<DownloadService> logger)
         {
-            _config = config;
             _logger = logger;
 
-            _program = _config["Download:Executable"];
-            _launchArgs = _config["Download:Args"];
-            _outputArgs = _config["Download:Output"];
+            _program = Settings.Instance["Download:Executable"];
+            _launchArgs = Settings.Instance["Download:Args"];
+            _outputArgs = Settings.Instance["Download:Output"];
         }
 
         public string Download(string arg)
