@@ -265,3 +265,4 @@ __pycache__/
 /RadioBot/ffmpeg.exe
 /RadioBot/youtube-dl.exe
 /RadioBot/Programs
+/RadioBot/Properties/secrets.json

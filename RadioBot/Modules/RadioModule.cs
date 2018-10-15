@@ -3,26 +3,23 @@ using Discord.Commands;
 
 using System.Threading.Tasks;
 
-using TheKrystalShip.Logging;
-using TheKrystalShip.RadioBot.Services;
-
-namespace TheKrystalShip.RadioBot.Modules
+namespace TheKrystalShip.RadioBot
 {
-    public class RadioModule : ModuleBase<SocketCommandContext>
+    public class RadioModule : Module
     {
         private readonly IRadioService _radioService;
-        private readonly ILogger<RadioModule> _logger;
 
-        public RadioModule(IRadioService radioService, ILogger<RadioModule> logger)
+        public RadioModule(Tools tools, IRadioService radioService) : base(tools)
         {
             _radioService = radioService;
-            _logger = logger;
+            _radioService.SetContext(Context);
         }
 
         [Command("join")]
         public async Task JoinVoiceChannelAsync()
         {
-            // Is user requesting in a voice channel?
+            _radioService.SetContext(Context);
+
             IVoiceChannel userVoiceChannel = (Context.Message.Author as IGuildUser)?.VoiceChannel;
 
             if (userVoiceChannel is null)
@@ -31,28 +28,29 @@ namespace TheKrystalShip.RadioBot.Modules
                 return;
             }
 
-            // Sent request to service
-            await _radioService.JoinChannelAsync(userVoiceChannel, Context);
+            await _radioService.JoinChannelAsync(userVoiceChannel);
         }
 
         [Command("leave")]
         [Alias("stop", "fuck off")]
         public async Task LeaveAsync()
         {
-            // Service handles checks on this one
-            await _radioService.LeaveChannelAsync(Context);
+            _radioService.SetContext(Context);
+
+            await _radioService.LeaveChannelAsync();
         }
 
         [Command("play")]
         public async Task PlayAsync([Remainder] string content = null)
         {
+            _radioService.SetContext(Context);
+
             if (content is null)
             {
                 await ReplyAsync("You need to tell me something to play");
                 return;
             }
 
-            // Is user requesting in a voice channel?
             IVoiceChannel userVoiceChannel = (Context.Message.Author as IGuildUser)?.VoiceChannel;
 
             if (userVoiceChannel is null)
@@ -61,11 +59,39 @@ namespace TheKrystalShip.RadioBot.Modules
                 return;
             }
 
-            // Service will only join if not already in the voice channel
-            await _radioService.JoinChannelAsync(userVoiceChannel, Context);
+            IUserMessage message = Context.Message;
+            await message.AddReactionAsync(new Emoji("\u25B6"));
 
-            // Send play request to service
-            await _radioService.PlayAsync(content, Context);
+            await _radioService.JoinChannelAsync(userVoiceChannel);
+            await _radioService.PlayAsync(content);
+        }
+
+        [Command("pause")]
+        public async Task PausePlaybackAsync()
+        {
+            IUserMessage message = Context.Message;
+            await message.AddReactionAsync(new Emoji("\u23F8"));
+
+            _radioService.Pause();
+        }
+
+        [Command("resume")]
+        [Alias("continue")]
+        public async Task ResumePlaybackAsync()
+        {
+            IUserMessage message = Context.Message;
+            await message.AddReactionAsync(new Emoji("\u25B6"));
+
+            _radioService.Resume();
+        }
+
+        [Command("volume")]
+        public async Task SetVolumeAsync(float volume)
+        {
+            IUserMessage message = Context.Message;
+            await message.AddReactionAsync(new Emoji("👍🏻"));
+
+            _radioService.SetVolume(volume / 100);
         }
     }
 }

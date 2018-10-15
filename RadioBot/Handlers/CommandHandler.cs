@@ -10,10 +10,8 @@ using System.Threading.Tasks;
 
 using TheKrystalShip.Logging;
 using TheKrystalShip.Logging.Extensions;
-using TheKrystalShip.RadioBot.Extensions;
-using TheKrystalShip.RadioBot.Managers;
 
-namespace TheKrystalShip.RadioBot.Handlers
+namespace TheKrystalShip.RadioBot
 {
     public class CommandHandler
     {
@@ -28,7 +26,7 @@ namespace TheKrystalShip.RadioBot.Handlers
 
             _commandService = new CommandService(new CommandServiceConfig()
                 {
-                    LogLevel = LogSeverity.Debug,
+                    LogLevel = LogSeverity.Info,
                     CaseSensitiveCommands = false,
                     DefaultRunMode = RunMode.Async
                 }
@@ -44,9 +42,9 @@ namespace TheKrystalShip.RadioBot.Handlers
                 .AddHandlers()
                 .AddServices()
                 .AddLogger()
+                .AddTools()
                 .BuildServiceProvider();
 
-            // Start handlers/services
             _serviceCollection.GetService<EventManager>();
             _logger = _serviceCollection.GetService<ILogger<CommandHandler>>();
 
@@ -55,7 +53,19 @@ namespace TheKrystalShip.RadioBot.Handlers
 
         public Task CommandServiceLog(LogMessage message)
         {
-            _logger.LogInformation(GetType().FullName + $" ({message.Source})", message.Message);
+            if (message.Exception is null)
+            {
+                _logger.LogInformation(GetType().Name + $" ({message.Source})", message.Message);
+            }
+            else
+            {
+                if (message.Exception.InnerException != null)
+                {
+                    _logger.LogError(message.Exception.InnerException);
+                }
+
+                _logger.LogError(message.Exception);
+            }
             return Task.CompletedTask;
         }
 

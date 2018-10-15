@@ -2,35 +2,31 @@
 using Discord.Audio;
 using Discord.Commands;
 
-using Microsoft.Extensions.Configuration;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 
 using TheKrystalShip.Logging;
 
-namespace TheKrystalShip.RadioBot.Services
+namespace TheKrystalShip.RadioBot
 {
     public class RadioService : IRadioService
     {
         private readonly ConcurrentDictionary<ulong, IAudioClient> _audioClients;
+        private readonly AudioPlayer _audioPlayer;
 
-        private Process _playbackProcess;
-
-        private readonly IStreamService _streamService;
+        private SocketCommandContext _context;
         private readonly ILogger<RadioService> _logger;
-        private bool _isPlaying;
 
-        public RadioService(IStreamService streamService, IConfiguration config, ILogger<RadioService> logger)
+        public RadioService(AudioPlayer audioPlayer, ILogger<RadioService> logger)
         {
             _audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
+            _audioPlayer = audioPlayer;
 
-            _streamService = streamService;
             _logger = logger;
+
+            _logger.LogInformation($"Started {GetType().Name}");
 
             AppDomain.CurrentDomain.ProcessExit += async delegate
             {
@@ -42,9 +38,14 @@ namespace TheKrystalShip.RadioBot.Services
             };
         }
 
-        public async Task JoinChannelAsync(IVoiceChannel channel, SocketCommandContext context)
+        public void SetContext(SocketCommandContext context)
         {
-            ulong guildId = context.Guild.Id;
+            _context = context;
+        }
+
+        public async Task JoinChannelAsync(IVoiceChannel channel)
+        {
+            ulong guildId = _context.Guild.Id;
 
             if (!_audioClients.ContainsKey(guildId))
             {
@@ -54,77 +55,42 @@ namespace TheKrystalShip.RadioBot.Services
             }
         }
 
-        public async Task LeaveChannelAsync(SocketCommandContext context)
+        public async Task LeaveChannelAsync()
         {
-            if (!_audioClients.TryGetValue(context.Guild.Id, out IAudioClient audioClient))
+            if (!_audioClients.TryGetValue(_context.Guild.Id, out IAudioClient client))
             {
-                await context.Channel.SendMessageAsync("I'm not connected");
+                await _context.Channel.SendMessageAsync("I'm not connected");
                 return;
             }
 
-            try
-            {
-                await audioClient.StopAsync();
-                audioClient.Dispose();
-                _isPlaying = false;
+            _audioPlayer.Stop();
 
-                _audioClients.TryRemove(context.Guild.Id, out audioClient);
+            await _context.Channel.SendMessageAsync("Disconnected from voice channel");
 
-                _playbackProcess?.CloseMainWindow();
-                _playbackProcess?.Close();
-                _playbackProcess?.Dispose();
-            }
-            catch (Exception)
-            {
-                _logger.LogError("Disconnected from audio client");
-            }
+            _audioClients.TryRemove(_context.Guild.Id, out client);
+            await client?.StopAsync();
+            client?.Dispose();
         }
 
-        public async Task PlayAsync(string content, SocketCommandContext context)
+        public async Task PlayAsync(string content)
         {
-            if (_isPlaying)
-            {
-                await context.Channel.SendMessageAsync("Queue is not implemented yet, so you're gonna have to wait");
-                return;
-            }
-
-            if (!_audioClients.TryGetValue(context.Guild.Id, out IAudioClient client))
+            if (!_audioClients.TryGetValue(_context.Guild.Id, out IAudioClient client))
             {
                 _logger.LogError("Failed to retrieve audio client");
-                _isPlaying = false;
                 return;
             }
 
-            using (_playbackProcess = _streamService.CreateStream(content))
-            using (AudioOutStream discordOutStream = client.CreatePCMStream(AudioApplication.Music))
-            {
-                _isPlaying = true;
+            await _audioPlayer.PlayAsync(client, content);
 
-                try
-                {
-                    _logger.LogInformation("Creating audio stream");
+            await _context.Channel.SendMessageAsync("Finished queue");
 
-                    Stream ffmpegStream = _playbackProcess.StandardOutput.BaseStream;
-                    await ffmpegStream.CopyToAsync(discordOutStream);
-
-                    _logger.LogInformation($"Finished playing: {content}");
-                }
-                catch (Exception)
-                {
-                    _logger.LogError("Closed audio steam");
-                }
-                finally
-                {
-                    await discordOutStream.FlushAsync();
-                    _logger.LogInformation("Flushed stream");
-                    _isPlaying = false;
-                    _playbackProcess?.CloseMainWindow();
-                    _playbackProcess?.Close();
-                    _playbackProcess?.Dispose();
-                }
-            }
-
-            await context.Channel.SendMessageAsync("Finished queue");
+            _audioClients.TryRemove(_context.Guild.Id, out client);
+            await client?.StopAsync();
+            client?.Dispose();
         }
+
+        public void Pause() => _audioPlayer.Pause();
+        public void Resume() => _audioPlayer.Resume();
+        public void SetVolume(float volume) => _audioPlayer.SetVolume(volume);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace TheKrystalShip.RadioBot.Extensions
+namespace TheKrystalShip.RadioBot
 {
     public static class TaskExtensions
     {

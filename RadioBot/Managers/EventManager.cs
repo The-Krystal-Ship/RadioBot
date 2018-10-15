@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using TheKrystalShip.Logging;
 
-namespace TheKrystalShip.RadioBot.Managers
+namespace TheKrystalShip.RadioBot
 {
     public class EventManager
     {
@@ -22,7 +22,7 @@ namespace TheKrystalShip.RadioBot.Managers
 
         public Task ClientLog(LogMessage message)
         {
-            if (!message.Message.Contains("OpCode"))
+            if (!message.Message.Contains("Malformed Frame"))
             {
                 _logger.LogInformation(GetType() + $" ({message.Source})", message.Message);
             }

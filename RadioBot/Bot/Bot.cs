@@ -3,10 +3,6 @@ using Discord.WebSocket;
 
 using System.Threading.Tasks;
 
-using TheKrystalShip.Configuration;
-using TheKrystalShip.RadioBot.Extensions;
-using TheKrystalShip.RadioBot.Handlers;
-
 namespace TheKrystalShip.RadioBot
 {
     public class Bot
@@ -19,7 +15,7 @@ namespace TheKrystalShip.RadioBot
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig()
                 {
-                    LogLevel = LogSeverity.Debug,
+                    LogLevel = LogSeverity.Info,
                     DefaultRetryMode = RetryMode.AlwaysRetry,
                     ConnectionTimeout = 5000
                 }
@@ -27,7 +23,7 @@ namespace TheKrystalShip.RadioBot
 
             _commandHandler = new CommandHandler(ref _client);
 
-            _token = Settings.Instance.GetToken();
+            _token = Settings.Instance["Bot:Token"];
         }
 
         public async Task InitAsync()

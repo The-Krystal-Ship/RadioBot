@@ -18,16 +18,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Addons.Interactive" Version="1.0.1" />
     <PackageReference Include="Discord.Net" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
-    <PackageReference Include="TheKrystalShip.Configuration" Version="1.0.0" />
     <PackageReference Include="TheKrystalShip.Logging" Version="1.0.6.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\secrets.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -43,6 +47,11 @@
     <None Update="Programs\youtube-dl.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="youtube-dl.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties Properties_4settings_1json__JSONSchema="http://json.schemastore.org/appsettings" Properties_4secrets_1json__JSONSchema="http://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
 
 </Project>

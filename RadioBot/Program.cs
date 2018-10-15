@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 
-using TheKrystalShip.RadioBot.Extensions;
-
 namespace TheKrystalShip.RadioBot
 {
     public class Program
