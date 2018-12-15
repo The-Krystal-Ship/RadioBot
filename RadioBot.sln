@@ -5,6 +5,16 @@ VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot", "RadioBot\RadioBot.csproj", "{77936A63-0533-4CE4-B530-292D235B775F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot.Tools", "RadioBot.Tools\RadioBot.Tools.csproj", "{1618172E-85A1-4A71-A539-5665E4994A2D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot.Core", "RadioBot.Core\RadioBot.Core.csproj", "{886F816A-05DD-4199-9689-E932C0669A20}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot.Core.Commands", "RadioBot.Core.Commands\RadioBot.Core.Commands.csproj", "{D7E18F02-94CA-4F7C-A870-FEA3C4202842}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot.Core.Modules", "RadioBot.Core.Modules\RadioBot.Core.Modules.csproj", "{D8F80AEF-56E9-47E5-BB80-1AF9EE42C0C3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBot.Core.Services", "RadioBot.Core.Services\RadioBot.Core.Services.csproj", "{F5DA552B-5D9C-470A-A5FC-E7240E8FF504}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +25,26 @@ Global
 		{77936A63-0533-4CE4-B530-292D235B775F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77936A63-0533-4CE4-B530-292D235B775F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77936A63-0533-4CE4-B530-292D235B775F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1618172E-85A1-4A71-A539-5665E4994A2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1618172E-85A1-4A71-A539-5665E4994A2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1618172E-85A1-4A71-A539-5665E4994A2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1618172E-85A1-4A71-A539-5665E4994A2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{886F816A-05DD-4199-9689-E932C0669A20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{886F816A-05DD-4199-9689-E932C0669A20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{886F816A-05DD-4199-9689-E932C0669A20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{886F816A-05DD-4199-9689-E932C0669A20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E18F02-94CA-4F7C-A870-FEA3C4202842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E18F02-94CA-4F7C-A870-FEA3C4202842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E18F02-94CA-4F7C-A870-FEA3C4202842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E18F02-94CA-4F7C-A870-FEA3C4202842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8F80AEF-56E9-47E5-BB80-1AF9EE42C0C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8F80AEF-56E9-47E5-BB80-1AF9EE42C0C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8F80AEF-56E9-47E5-BB80-1AF9EE42C0C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8F80AEF-56E9-47E5-BB80-1AF9EE42C0C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5DA552B-5D9C-470A-A5FC-E7240E8FF504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5DA552B-5D9C-470A-A5FC-E7240E8FF504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5DA552B-5D9C-470A-A5FC-E7240E8FF504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5DA552B-5D9C-470A-A5FC-E7240E8FF504}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,16 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using RadioBot.Core;
+
+using System.Threading.Tasks;
 
 namespace TheKrystalShip.RadioBot
 {
     public class Program
     {
-        private static Bot _radioBot;
-
         public static async Task Main(string[] args)
         {
-            await (_radioBot = new Bot())
-                .InitAsync()
-                .DelayIndefinetly();
+            await BotBuilder
+                .UseStartup<Startup>()
+                .ConfigureCommands()
+                .ConfigureServices()
+                .ConfigureClient()
+                .InitAsync();
         }
     }
 }

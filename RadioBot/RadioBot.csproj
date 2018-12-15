@@ -18,11 +18,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="TheKrystalShip.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="TheKrystalShip.Logging" Version="1.0.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RadioBot.Core.Commands\RadioBot.Core.Commands.csproj" />
+    <ProjectReference Include="..\RadioBot.Core.Modules\RadioBot.Core.Modules.csproj" />
+    <ProjectReference Include="..\RadioBot.Core.Services\RadioBot.Core.Services.csproj" />
+    <ProjectReference Include="..\RadioBot.Core\RadioBot.Core.csproj" />
+    <ProjectReference Include="..\RadioBot.Tools\RadioBot.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 using TheKrystalShip.Logging;
 
-namespace TheKrystalShip.RadioBot
+namespace TheKrystalShip.RadioBot.Core.Services
 {
     public class RadioService : IRadioService
     {
@@ -19,12 +19,12 @@ namespace TheKrystalShip.RadioBot
         private SocketCommandContext _context;
         private readonly ILogger<RadioService> _logger;
 
-        public RadioService(AudioPlayer audioPlayer, ILogger<RadioService> logger)
+        public RadioService(AudioPlayer audioPlayer)
         {
             _audioClients = new ConcurrentDictionary<ulong, IAudioClient>();
             _audioPlayer = audioPlayer;
 
-            _logger = logger;
+            _logger = new Logger<RadioService>();
 
             _logger.LogInformation($"Started {GetType().Name}");
 

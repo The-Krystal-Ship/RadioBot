@@ -3,7 +3,7 @@ using Discord.Commands;
 
 using System.Threading.Tasks;
 
-namespace TheKrystalShip.RadioBot
+namespace TheKrystalShip.RadioBot.Core.Services
 {
     public interface IRadioService
     {

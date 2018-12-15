@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using TheKrystalShip.Logging;
 
-namespace TheKrystalShip.RadioBot
+namespace TheKrystalShip.RadioBot.Core.Services
 {
     public class AudioPlayer
     {
@@ -20,9 +20,9 @@ namespace TheKrystalShip.RadioBot
         private readonly ILogger<AudioPlayer> _logger;
         private readonly int _blockSize = 3840;
 
-        public AudioPlayer(ILogger<AudioPlayer> logger)
+        public AudioPlayer()
         {
-            _logger = logger;
+            _logger = new Logger<AudioPlayer>();
         }
 
         public async Task PlayAsync(IAudioClient client, string query)

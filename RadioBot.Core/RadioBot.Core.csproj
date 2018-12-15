@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="TheKrystalShip.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="TheKrystalShip.Logging" Version="1.0.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RadioBot.Core.Commands\RadioBot.Core.Commands.csproj" />
+    <ProjectReference Include="..\RadioBot.Tools\RadioBot.Tools.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,20 +1,24 @@
 ﻿using Discord.Commands;
 
-namespace TheKrystalShip.RadioBot
+using TheKrystalShip.DependencyInjection;
+using TheKrystalShip.RadioBot.Core.Services;
+
+namespace TheKrystalShip.RadioBot.Core.Modules
 {
     public class Module : ModuleBase<SocketCommandContext>
     {
-        public Tools Tools { get; private set; }
+        public IRadioService Service { get; private set; }
 
-        public Module(Tools tools)
+        public Module()
         {
-            Tools = tools;
+            Service = Container.Get<IRadioService>();
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
             base.BeforeExecute(command);
 
+            Service.SetContext(Context);
         }
 
         protected override void AfterExecute(CommandInfo command)
